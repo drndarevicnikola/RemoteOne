@@ -71,6 +71,7 @@ class Glavni: UIViewController, keypadActionDelegate {
     var dispatch: DispatchWorkItem!
     var keypad = false
     var present_devices: Strukture.Prisutni_Uredjaji!
+    let nc = NotificationCenter.default
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -104,6 +105,12 @@ class Glavni: UIViewController, keypadActionDelegate {
         let tapGestureRecognizerREV = UITapGestureRecognizer(target: self, action: #selector(REV_Tapped(tapGestureRecognizer:)))
         REVBo.isUserInteractionEnabled = true
         REVBo.addGestureRecognizer(tapGestureRecognizerREV)
+        
+        nc.addObserver(self, selector: #selector(roomChanged), name: Notification.Name("RoomChanged"), object: nil)
+    }
+    
+    @objc func roomChanged() {
+        self.viewDidAppear(true)
     }
     
     @objc func TV_Tapped(tapGestureRecognizer: UITapGestureRecognizer)
@@ -170,6 +177,8 @@ class Glavni: UIViewController, keypadActionDelegate {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+//        print("Main has appeared.")
         let sr = defaults.string(forKey: "IzabranaSoba")
         if (sr != nil) {
             selectedRoom = Int(sr!)!
@@ -541,6 +550,7 @@ class Podesavanja: UIViewController, UITextFieldDelegate {
     var rooms: [Strukture.Sobe]!
     let data = Adrese()
     let defaults = UserDefaults.standard
+    let nc = NotificationCenter.default
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -567,6 +577,8 @@ class Podesavanja: UIViewController, UITextFieldDelegate {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+//        print("Settings have appeared.")
     }
     
     @IBOutlet weak var text: UITextField!
@@ -580,6 +592,7 @@ class Podesavanja: UIViewController, UITextFieldDelegate {
                 selectedRoom = i
                 defaults.set(selectedRoom, forKey: "IzabranaSoba")
                 good = true
+                nc.post(name: Notification.Name("RoomChanged"), object: nil)
                 break
             }
         }
